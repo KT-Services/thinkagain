@@ -73,3 +73,16 @@ cp .env.template ../environments/overleaf/.env
 Create an OAuth2/OIDC provider in Authentik and an Application pointing at it. The redirect URI should be `<OVERLEAF_SITE_URL>/oidc/login/callback`. Copy the issuer URL, client ID, client secret, and endpoint URLs into the `OIDC_*` env vars.
 
 User details (name, email) are synced from the OIDC token on every login (`OVERLEAF_OIDC_UPDATE_USER_DETAILS_ON_LOGIN=true`). The `sub` claim is used as the stable user identifier.
+
+## mongo setup
+
+on first boot the mongo database needs to be initialized with the command.
+
+```bash
+
+docker exec -it overleaf-mongo \
+  mongosh --eval 'rs.initiate({
+    _id: "overleaf",
+    members: [{ _id: 0, host: "overleaf-mongo:27017" }]
+  })'
+```

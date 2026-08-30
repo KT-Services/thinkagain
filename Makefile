@@ -1,8 +1,10 @@
 STACKS := authentik outline overleaf
 
-NETWORKS := proxy
+NETWORKS := proxy overleaf-flared
 
 .PHONY: all up down update pull $(STACKS)
+
+all: networks update up
 
 networks:
 	@for network in $(NETWORKS); do \
@@ -13,9 +15,6 @@ networks:
 			echo "---------- Network $$network already exists ----------"; \
 		fi; \
 	done
-
-
-all: networks update up
 
 up: networks
 	@for stack in $(STACKS); do \

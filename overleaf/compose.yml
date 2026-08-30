@@ -8,7 +8,8 @@ services:
     environment:
       - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
     networks:
-      - flared
+      - overleaf-flared
+
   # ------------------------------------------------------
   #overleaf
   overleaf:
@@ -21,10 +22,16 @@ services:
       redis:
         condition: service_started
     environment:
+      ####################
+      # Overlead Branding
+      ####################
       OVERLEAF_APP_NAME: ${OVERLEAF_APP_NAME}
       OVERLEAF_SITE_URL: ${OVERLEAF_SITE_URL}
       OVERLEAF_NAV_TITLE: ${OVERLEAF_NAV_TITLE}
 
+      ####################
+      # Settings
+      ####################
       OVERLEAF_BEHIND_PROXY: "true"
       OVERLEAF_PROXY_LEARN: "true"
       ENABLED_LINKED_FILE_TYPES: project_file,project_output_file
@@ -34,8 +41,9 @@ services:
       OVERLEAF_REDIS_HOST: redis
       REDIS_HOST: redis
 
-      #################################################
+      ####################
       # SMTP
+      ####################
       OVERLEAF_EMAIL_FROM_ADDRESS: ${SMTP_FROM_ADDRESS}
       OVERLEAF_ADMIN_EMAIL: ${ADMIN_EMAIL}
       OVERLEAF_EMAIL_SMTP_HOST: ${SMTP_HOST}
@@ -44,12 +52,15 @@ services:
       OVERLEAF_EMAIL_SMTP_USER: ${SMTP_USER}
       OVERLEAF_EMAIL_SMTP_PASS: ${SMTP_KEY}
 
-      #################################################
+      ####################
       # Login Settings
+      ####################
       OVERLEAF_INVITE_TOKEN_SECRET: ${OVERLEAF_INVITE_TOKEN_SECRET}
       OVERLEAF_LOGIN_ENABLED: "false"
-      #################################################
+
+      ####################
       # OIDC (Authentik)
+      ####################
       EXTERNAL_AUTH: ${EXTERNAL_AUTH}
       OVERLEAF_OIDC_PROVIDER_ID: ${OIDC_PROVIDER_ID}
       OVERLEAF_OIDC_PROVIDER_NAME: ${OIDC_PROVIDER_NAME}
@@ -67,9 +78,9 @@ services:
       OVERLEAF_OIDC_USER_ID_FIELD: sub
       OVERLEAF_OIDC_UPDATE_USER_DETAILS_ON_LOGIN: "true"
 
-      #################################################
+      ####################
       # Sandboxed compiles
-      #################################################
+      ####################
       DOCKER_RUNNER: "true"
       SANDBOXED_COMPILES: "true"
       SIBLING_CONTAINERS_ENABLED: "true"
@@ -77,18 +88,18 @@ services:
 
       SANDBOXED_COMPILES_HOST_DIR: /var/lib/overleaf/data/compiles
 
+      ####################
       # TeX Live compiler image
+      ####################
       TEX_LIVE_DOCKER_IMAGE: texlive/texlive:latest-full
       ALL_TEX_LIVE_DOCKER_IMAGES: texlive/texlive:latest-full
       ALL_TEX_LIVE_DOCKER_IMAGE_NAMES: TeXLive
-
     volumes:
       - ../data/overleaf/overleaf-data:/var/lib/overleaf
-
       # Required for sibling containers
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
-      - flared
+      - overleaf-flared
       - internal
 
   # ------------------------------------------------------
@@ -127,5 +138,5 @@ services:
 networks:
   internal:
     internal: true
-  flared:
-    internal: true
+  overleaf-flared:
+    external: true
