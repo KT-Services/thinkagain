@@ -3,11 +3,11 @@ services:
   # outline
   outline:
     image: docker.getoutline.com/outlinewiki/outline:1.2.0
-    env_file: ../../outline/.env
+    env_file: ../environments/outline/.env
     expose:
       - "3000"
     volumes:
-      - ../../data/outline/outline-data:/var/lib/outline/data
+      - ../data/outline/outline-data:/var/lib/outline/data
     depends_on:
       - postgres
       - redis
@@ -19,13 +19,13 @@ services:
   # redis
   redis:
     image: redis:7-alpine
-    env_file: ../../environments/outline/.env
+    env_file: ../environments/outline/.env
     expose:
       - "6379"
     networks:
       - internal
     # volumes:
-    #  - ./redis.conf:/redis.conf
+    #  - ../data/outline/redis/redis.conf:/redis.conf
     # command: ["redis-server", "/redis.conf"]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -37,13 +37,13 @@ services:
   # postgres
   postgres:
     image: postgres:18
-    env_file: ../../environments/outline/.env
+    env_file: ../environments/outline/.env
     expose:
       - "5432"
     networks:
       - internal
     volumes:
-      - ../../data/outline/postgres-data:/var/lib/postgresql/data
+      - ../data/outline/postgres-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD", "pg_isready", "-d", "outline", "-U", "user"]
       interval: 30s
@@ -54,7 +54,7 @@ services:
   # # https-portal
   # https-portal:
   #   image: steveltn/https-portal
-  #   env_file: ../../environments/outline/.env
+  #   env_file: ../environments/outline/.env
   #   ports:
   #     - '80:80'
   #     - '443:443'
@@ -65,7 +65,7 @@ services:
   #     - outline
   #   restart: always
   #   volumes:
-  #     - ../../data/outline/https-portal-data:/var/lib/https-portal
+  #     - ../data/outline/https-portal-data:/var/lib/https-portal
   #   healthcheck:
   #     test: ["CMD", "service", "nginx", "status"]
   #     interval: 30s

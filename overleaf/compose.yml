@@ -8,7 +8,7 @@ services:
     environment:
       - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
     networks:
-      - proxy
+      - flared
   # ------------------------------------------------------
   #overleaf
   overleaf:
@@ -83,13 +83,14 @@ services:
       ALL_TEX_LIVE_DOCKER_IMAGE_NAMES: TeXLive
 
     volumes:
-      - ./overleaf/data:/var/lib/overleaf
+      - ../data/overleaf/overleaf-data:/var/lib/overleaf
 
       # Required for sibling containers
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
-      - proxy
+      - flared
       - internal
+
   # ------------------------------------------------------
   #mongo
   mongo:
@@ -98,8 +99,8 @@ services:
     restart: unless-stopped
     command: --replSet overleaf --bind_ip_all
     volumes:
-      - ./overleaf-mongo/data:/data/db
-      - ./overleaf-mongo/config:/data/configdb
+      - ../data/overleaf/mongo/data:/data/db
+      - ../data/overleaf/mongo/config:/data/configdb
     healthcheck:
       test:
         - CMD
@@ -111,6 +112,7 @@ services:
       retries: 10
     networks:
       - internal
+
   # ------------------------------------------------------
   #redis
   redis:
@@ -118,11 +120,12 @@ services:
     container_name: overleaf-redis
     restart: unless-stopped
     volumes:
-      - ./overleaf-redis/data:/data
+      - ../data/overleaf/redis/data:/data
     networks:
       - internal
+
 networks:
   internal:
     internal: true
-  proxy:
-    external: true
+  flared:
+    internal: true

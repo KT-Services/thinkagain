@@ -21,7 +21,7 @@ make update  # pull latest overleaf-cep, rebuild images, pull latest mongo/redis
 Copy `.env.template` to `../environments/overleaf/.env` and fill in all values.
 
 ```bash
-cp .env.template ../../environments/outline/.env
+cp .env.template ../environments/outline/.env
 ```
 
 ## Authentik setup
