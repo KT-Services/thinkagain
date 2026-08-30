@@ -1,4 +1,4 @@
-ENV_FILE := ../environments/authentic/.env
+ENV_FILE := ../environments/authentik/.env
 COMPOSE := docker compose --env-file $(ENV_FILE)
 
 up:

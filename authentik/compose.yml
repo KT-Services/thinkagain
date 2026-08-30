@@ -12,7 +12,7 @@ services:
       POSTGRES_DB: authentik
 
     volumes:
-      - ../data/authentic/postgresql:/var/lib/postgresql/data
+      - ../data/authentik/postgresql:/var/lib/postgresql/data
 
     networks:
       - internal
@@ -27,7 +27,7 @@ services:
     command: --save 60 1 --loglevel warning
 
     volumes:
-      - ../data/authentic/redis:/data
+      - ../data/authentik/redis:/data
 
     networks:
       - internal
@@ -54,11 +54,11 @@ services:
       AUTHENTIK_ERROR_REPORTING__ENABLED: "false"
 
     env_file:
-      - .env
+      - ../environments/authentik/.env
 
     volumes:
-      - ../data/authentic/media:/media
-      - ../data/authentic/custom-templates:/templates
+      - ../data/authentik/media:/media
+      - ../data/authentik/custom-templates:/templates
 
     depends_on:
       - postgresql
@@ -90,11 +90,11 @@ services:
       AUTHENTIK_ERROR_REPORTING__ENABLED: "false"
 
     env_file:
-      - .env
+      - ../environments/authentik/.env
 
     volumes:
-      - ../data/authentic/media:/media
-      - ../data/authentic/custom-templates:/templates
+      - ../data/authentik/media:/media
+      - ../data/authentik/custom-templates:/templates
       - /var/run/docker.sock:/var/run/docker.sock
 
     depends_on:
