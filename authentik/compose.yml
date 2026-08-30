@@ -1,0 +1,112 @@
+services:
+  # ------------------------------------------------------
+  # Postgres
+  postgresql:
+    image: postgres:16-alpine
+    container_name: authentik-postgresql
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: authentik
+      POSTGRES_PASSWORD: ${PG_PASS}
+      POSTGRES_DB: authentik
+
+    volumes:
+      - ../../data/authentic/postgresql:/var/lib/postgresql/data
+
+    networks:
+      - internal
+
+  # ------------------------------------------------------
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: authentik-redis
+    restart: unless-stopped
+
+    command: --save 60 1 --loglevel warning
+
+    volumes:
+      - ../../data/authentic/redis:/data
+
+    networks:
+      - internal
+
+  # ------------------------------------------------------
+  # Authentik Server
+  server:
+    image: ghcr.io/goauthentik/server:2026.5
+    container_name: authentik-server
+    restart: unless-stopped
+
+    command: server
+
+    environment:
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
+
+      AUTHENTIK_REDIS__HOST: redis
+
+      AUTHENTIK_POSTGRESQL__HOST: postgresql
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${PG_PASS}
+
+      AUTHENTIK_ERROR_REPORTING__ENABLED: "false"
+
+    env_file:
+      - .env
+
+    volumes:
+      - ../../data/authentic/media:/media
+      - ../../data/authentic/custom-templates:/templates
+
+    depends_on:
+      - postgresql
+      - redis
+
+    networks:
+      - proxy
+      - internal
+
+  # ------------------------------------------------------
+  # Authentik Worker
+  worker:
+    image: ghcr.io/goauthentik/server:2026.5
+    container_name: authentik-worker
+    restart: unless-stopped
+
+    command: worker
+
+    environment:
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
+
+      AUTHENTIK_REDIS__HOST: redis
+
+      AUTHENTIK_POSTGRESQL__HOST: postgresql
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${PG_PASS}
+
+      AUTHENTIK_ERROR_REPORTING__ENABLED: "false"
+
+    env_file:
+      - .env
+
+    volumes:
+      - ../../data/authentic/media:/media
+      - ../../data/authentic/custom-templates:/templates
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    depends_on:
+      - postgresql
+      - redis
+
+    networks:
+      - internal
+
+networks:
+  proxy:
+    external: true
+
+  internal:
+    internal: true

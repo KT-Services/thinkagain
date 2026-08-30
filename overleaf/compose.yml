@@ -1,0 +1,128 @@
+services:
+  cloudflared:
+    image: cloudflare/cloudflared
+    container_name: overleaf-cloudflared
+
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    networks:
+      - proxy
+  # ------------------------------------------------------
+  #overleaf
+  overleaf:
+    image: sharelatex/sharelatex:ext-ce
+    container_name: overleaf
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      OVERLEAF_APP_NAME: ${OVERLEAF_APP_NAME}
+      OVERLEAF_SITE_URL: ${OVERLEAF_SITE_URL}
+      OVERLEAF_NAV_TITLE: ${OVERLEAF_NAV_TITLE}
+
+      OVERLEAF_BEHIND_PROXY: "true"
+      OVERLEAF_PROXY_LEARN: "true"
+      ENABLED_LINKED_FILE_TYPES: project_file,project_output_file
+      ENABLE_CONVERSIONS: "true"
+      ENABLE_CRON_RESOURCE_DELETION: "true"
+      OVERLEAF_MONGO_URL: mongodb://mongo/sharelatex
+      OVERLEAF_REDIS_HOST: redis
+      REDIS_HOST: redis
+
+      #################################################
+      # SMTP
+      OVERLEAF_EMAIL_FROM_ADDRESS: ${SMTP_FROM_ADDRESS}
+      OVERLEAF_ADMIN_EMAIL: ${ADMIN_EMAIL}
+      OVERLEAF_EMAIL_SMTP_HOST: ${SMTP_HOST}
+      OVERLEAF_EMAIL_SMTP_PORT: ${SMTP_PORT}
+      OVERLEAF_EMAIL_SMTP_SECURE: ${SMTP_SECURE}
+      OVERLEAF_EMAIL_SMTP_USER: ${SMTP_USER}
+      OVERLEAF_EMAIL_SMTP_PASS: ${SMTP_KEY}
+
+      #################################################
+      # Login Settings
+      OVERLEAF_INVITE_TOKEN_SECRET: ${OVERLEAF_INVITE_TOKEN_SECRET}
+      OVERLEAF_LOGIN_ENABLED: "false"
+      #################################################
+      # OIDC (Authentik)
+      EXTERNAL_AUTH: ${EXTERNAL_AUTH}
+      OVERLEAF_OIDC_PROVIDER_ID: ${OIDC_PROVIDER_ID}
+      OVERLEAF_OIDC_PROVIDER_NAME: ${OIDC_PROVIDER_NAME}
+      OVERLEAF_OIDC_IDENTITY_SERVICE_NAME: ${OIDC_IDENTITY_SERVICE_NAME}
+      OVERLEAF_OIDC_ISSUER: ${OIDC_ISSUER}
+      OVERLEAF_OIDC_AUTHORIZATION_URL: ${OIDC_AUTHORIZATION_URL}
+      OVERLEAF_OIDC_TOKEN_URL: ${OIDC_TOKEN_URL}
+      OVERLEAF_OIDC_USER_INFO_URL: ${OIDC_USER_INFO_URL}
+      OVERLEAF_OIDC_LOGOUT_URL: ${OIDC_LOGOUT_URL}
+
+      OVERLEAF_OIDC_CLIENT_ID: ${OIDC_CLIENT_ID}
+      OVERLEAF_OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET}
+
+      OVERLEAF_OIDC_SCOPE: openid email profile
+      OVERLEAF_OIDC_USER_ID_FIELD: sub
+      OVERLEAF_OIDC_UPDATE_USER_DETAILS_ON_LOGIN: "true"
+
+      #################################################
+      # Sandboxed compiles
+      #################################################
+      DOCKER_RUNNER: "true"
+      SANDBOXED_COMPILES: "true"
+      SIBLING_CONTAINERS_ENABLED: "true"
+      SANDBOXED_COMPILES_SIBLING_CONTAINERS: "true"
+
+      SANDBOXED_COMPILES_HOST_DIR: /var/lib/overleaf/data/compiles
+
+      # TeX Live compiler image
+      TEX_LIVE_DOCKER_IMAGE: texlive/texlive:latest-full
+      ALL_TEX_LIVE_DOCKER_IMAGES: texlive/texlive:latest-full
+      ALL_TEX_LIVE_DOCKER_IMAGE_NAMES: TeXLive
+
+    volumes:
+      - ./overleaf/data:/var/lib/overleaf
+
+      # Required for sibling containers
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - proxy
+      - internal
+  # ------------------------------------------------------
+  #mongo
+  mongo:
+    image: mongo:latest
+    container_name: overleaf-mongo
+    restart: unless-stopped
+    command: --replSet overleaf --bind_ip_all
+    volumes:
+      - ./overleaf-mongo/data:/data/db
+      - ./overleaf-mongo/config:/data/configdb
+    healthcheck:
+      test:
+        - CMD
+        - mongosh
+        - --eval
+        - db.adminCommand('ping')
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - internal
+  # ------------------------------------------------------
+  #redis
+  redis:
+    image: redis:7-alpine
+    container_name: overleaf-redis
+    restart: unless-stopped
+    volumes:
+      - ./overleaf-redis/data:/data
+    networks:
+      - internal
+networks:
+  internal:
+    internal: true
+  proxy:
+    external: true

@@ -1,0 +1,84 @@
+services:
+  # ------------------------------------------------------
+  # outline
+  outline:
+    image: docker.getoutline.com/outlinewiki/outline:1.2.0
+    env_file: ../../outline/.env
+    expose:
+      - "3000"
+    volumes:
+      - ../../data/outline/outline-data:/var/lib/outline/data
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - proxy
+      - internal
+
+  # ------------------------------------------------------
+  # redis
+  redis:
+    image: redis:7-alpine
+    env_file: ../../environments/outline/.env
+    expose:
+      - "6379"
+    networks:
+      - internal
+    # volumes:
+    #  - ./redis.conf:/redis.conf
+    # command: ["redis-server", "/redis.conf"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 30s
+      retries: 3
+
+  # ------------------------------------------------------
+  # postgres
+  postgres:
+    image: postgres:18
+    env_file: ../../environments/outline/.env
+    expose:
+      - "5432"
+    networks:
+      - internal
+    volumes:
+      - ../../data/outline/postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "outline", "-U", "user"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # # ------------------------------------------------------
+  # # https-portal
+  # https-portal:
+  #   image: steveltn/https-portal
+  #   env_file: ../../environments/outline/.env
+  #   ports:
+  #     - '80:80'
+  #     - '443:443'
+  #   networks:
+  #     - proxy
+  #     - internal
+  #   links:
+  #     - outline
+  #   restart: always
+  #   volumes:
+  #     - ../../data/outline/https-portal-data:/var/lib/https-portal
+  #   healthcheck:
+  #     test: ["CMD", "service", "nginx", "status"]
+  #     interval: 30s
+  #     timeout: 20s
+  #     retries: 3
+  #   environment:
+  #     DOMAINS: 'outline.kt-services.net -> http://outline:3000'
+  #     STAGE: 'production'
+  #     WEBSOCKET: 'true'
+  #     CLIENT_MAX_BODY_SIZE: '0'
+
+networks:
+  proxy: 
+    external: true
+  internal:
+    internal: true
