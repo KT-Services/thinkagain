@@ -4,8 +4,10 @@ COMPOSE := docker compose #--env-file $(ENV_FILE)
 up:
 	$(COMPOSE) up -d
 
-pull:
-	$(COMPOSE) pull mongo redis
+docker-pull:
+	$(COMPOSE) pull
+
+pull: docker-pull
 
 update: docker-pull
 
