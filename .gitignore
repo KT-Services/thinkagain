@@ -2,3 +2,9 @@
 *.env
 
 data/*/
+
+# =================
+# overleaf
+
+# overleaf fork with oicd support
+overleaf/overleaf-cep 

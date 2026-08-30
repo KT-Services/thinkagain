@@ -13,7 +13,7 @@ clone:
 	fi
 
 git-pull: clone
-	git -C $(CEP_DIR) git-pull
+	git -C $(CEP_DIR) pull
 
 #==================
 # Building images
