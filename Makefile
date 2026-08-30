@@ -1,4 +1,4 @@
-STACKS := authentik outline homepage media
+STACKS := authentik outline overleaf
 
 .PHONY: all up down update pull $(STACKS)
 
