@@ -1,0 +1,1 @@
+This is the Data directory of the stacks. I included it in the stacks folder for permission consistency and easy backup of the whole 'thinkagain' folder
