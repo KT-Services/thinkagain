@@ -57,7 +57,7 @@ services:
       - ../environments/authentik/.env
 
     volumes:
-      - ../data/authentik/media:/static/authentik/media
+      - ../data/authentik/data:/data
       - ../data/authentik/custom-templates:/templates
 
     depends_on:
@@ -93,7 +93,7 @@ services:
       - ../environments/authentik/.env
 
     volumes:
-      - ../data/authentik/media:/static/authentik/media
+      - ../data/authentik/data:/data
       - ../data/authentik/custom-templates:/templates
       - /var/run/docker.sock:/var/run/docker.sock
 
