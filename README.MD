@@ -9,6 +9,7 @@ The Usage of Makefile's was chosen for the ability to incorporate git cloning an
 
 Currently managed stacks:
 
+* nginx-proxy-manager
 * Authentik
 * Outline
 * Overleaf
@@ -19,6 +20,9 @@ Repository structure:
 .
 ├── Makefile
 ├── README.md
+├── nginx/
+│   ├── compose.yml
+│   └── Makefile
 ├── authentik/
 │   ├── compose.yml
 │   └── Makefile
@@ -89,6 +93,7 @@ make -C outline update
 The same works for:
 
 ```bash
+make -C nginx
 make -C authentik
 make -C overleaf
 ```

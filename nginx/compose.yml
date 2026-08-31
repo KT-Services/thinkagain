@@ -25,8 +25,20 @@ services:
       - 81:81
       - 443:443
 
+  # cloudflared:
+  #   image: cloudflare/cloudflared:latest
+  #   container_name: cloudflared
+  #   restart: unless-stopped
+  #   command: tunnel --no-autoupdate run
+  #   networks:
+  #     proxy: null
+  #   environment:
+  #     - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+
 networks:
   proxy: 
     external: true
+  
+  # for legacy services deployed on the server not yet migrated
   cityplaza:
     external: true
