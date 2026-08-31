@@ -1,4 +1,4 @@
-STACKS := authentik outline overleaf
+STACKS := authentik outline overleaf nginx
 
 NETWORKS := proxy overleaf-flared
 
