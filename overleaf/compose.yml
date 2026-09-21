@@ -85,19 +85,6 @@ services:
       - internal
 
   # ------------------------------------------------------
-  # CLSI - compile backend
-  clsi:
-    image: sharelatex/clsi:latest
-    container_name: overleaf-clsi
-    restart: unless-stopped
-    depends_on:
-      - mongo
-    environment:
-      OVERLEAF_APP_NAME: ${OVERLEAF_APP_NAME}
-    networks:
-      - internal
-
-  # ------------------------------------------------------
   #mongo
   mongo:
     image: mongo:latest
