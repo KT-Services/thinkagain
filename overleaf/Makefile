@@ -26,16 +26,21 @@ build-community:
 
 build: build-base build-community
 
-up: build
-	$(COMPOSE) up -d
+#==================
+# updates
+update-git: git-pull build\
 
-docker-pull:
+update-docker:
 	$(COMPOSE) pull mongo redis cloudflared
+
+#==================
+# Base coommands:
+up: 
+	$(COMPOSE) up -d
 
 pull: git-pull docker-pull
 
-update: git-pull build docker-pull
-	$(COMPOSE) up -d
+update: update-git update-docker up
 
 down:
 	$(COMPOSE) down

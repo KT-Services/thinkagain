@@ -94,10 +94,11 @@ services:
       TEX_LIVE_DOCKER_IMAGE: texlive/texlive:latest-full
       ALL_TEX_LIVE_DOCKER_IMAGES: texlive/texlive:latest-full
       ALL_TEX_LIVE_DOCKER_IMAGE_NAMES: TeXLive
+    entrypoint: sh -c 'apt-get update && apt-get install -y docker.io && exec docker-entrypoint.sh node server'
     volumes:
       - ../data/overleaf/overleaf-data:/var/lib/overleaf
       # Required for sibling containers
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - overleaf-flared
       - internal
