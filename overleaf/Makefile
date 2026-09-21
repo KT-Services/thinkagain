@@ -26,9 +26,12 @@ build-community:
 
 build: build-base build-community
 
+build-overleaf-wrapper:
+	docker build -f Dockerfile -t sharelatex/sharelatex:ext-ce-docker .
+
 #==================
 # updates
-update-git: git-pull build\
+update-git: git-pull build
 
 update-docker:
 	$(COMPOSE) pull mongo redis cloudflared
@@ -40,7 +43,7 @@ up:
 
 pull: git-pull docker-pull
 
-update: update-git update-docker up
+update: update-git build-overleaf-wrapper update-docker up
 
 down:
 	$(COMPOSE) down
