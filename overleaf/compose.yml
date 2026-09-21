@@ -13,10 +13,7 @@ services:
   # ------------------------------------------------------
   #overleaf
   overleaf:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: sharelatex/sharelatex:ext-ce-docker
+    image: sharelatex/sharelatex:ext-ce
     container_name: overleaf
     restart: unless-stopped
     depends_on:
@@ -80,29 +77,24 @@ services:
       OVERLEAF_OIDC_SCOPE: openid email profile
       OVERLEAF_OIDC_USER_ID_FIELD: sub
       OVERLEAF_OIDC_UPDATE_USER_DETAILS_ON_LOGIN: "true"
-
-      ####################
-      # Sandboxed compiles
-      ####################
-      DOCKER_RUNNER: "true"
-      SANDBOXED_COMPILES: "true"
-      SIBLING_CONTAINERS_ENABLED: "true"
-      SANDBOXED_COMPILES_SIBLING_CONTAINERS: "true"
-
-      SANDBOXED_COMPILES_HOST_DIR: /var/lib/overleaf/data/compiles
-
-      ####################
-      # TeX Live compiler image
-      ####################
-      TEX_LIVE_DOCKER_IMAGE: texlive/texlive:latest-full
-      ALL_TEX_LIVE_DOCKER_IMAGES: texlive/texlive:latest-full
-      ALL_TEX_LIVE_DOCKER_IMAGE_NAMES: TeXLive
     volumes:
       - ../data/overleaf/overleaf-data:/var/lib/overleaf
-      # Required for sibling containers
-      - /var/run/docker.sock:/var/run/docker.sock
+
     networks:
       - overleaf-flared
+      - internal
+
+  # ------------------------------------------------------
+  # CLSI - compile backend
+  clsi:
+    image: sharelatex/clsi:latest
+    container_name: overleaf-clsi
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    environment:
+      OVERLEAF_APP_NAME: ${OVERLEAF_APP_NAME}
+    networks:
       - internal
 
   # ------------------------------------------------------
